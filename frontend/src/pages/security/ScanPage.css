@@ -1,0 +1,137 @@
+.scan-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.qr-reader-container {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* Override html5-qrcode default styles */
+#qr-reader {
+  border: none !important;
+  border-radius: var(--radius-md) !important;
+}
+
+#qr-reader__scan_region {
+  min-height: 300px;
+}
+
+#qr-reader__dashboard_section_swaplink {
+  color: var(--primary-600) !important;
+  text-decoration: none !important;
+}
+
+.scan-complete {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.scan-complete-icon {
+  font-size: 3rem;
+  color: var(--success-500);
+  margin-bottom: 1rem;
+}
+
+.manual-entry {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Result Card */
+.verification-result {
+  animation: slideUp 0.3s ease;
+}
+
+.result-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.result-valid {
+  background: var(--success-50);
+  color: var(--success-700);
+}
+
+.result-invalid {
+  background: var(--danger-50);
+  color: var(--danger-700);
+  text-align: center;
+  padding: 2rem;
+}
+
+.result-invalid .result-icon {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+}
+
+.visitor-details {
+  margin-bottom: 1.5rem;
+}
+
+.visitor-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.visitor-detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  color: var(--gray-500);
+  font-size: 0.8125rem;
+}
+
+.detail-value {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.detail-value code {
+  background: var(--gray-100);
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.action-buttons .btn {
+  flex: 1;
+}
+
+.visitor-avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
+  color: var(--primary-700);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .scan-layout {
+    grid-template-columns: 1fr;
+  }
+}
