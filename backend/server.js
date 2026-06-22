@@ -29,15 +29,8 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 app.use(cors({
   origin: function (origin, callback) {
-    const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174'];
-    if (process.env.CLIENT_URL && !allowedOrigins.includes(process.env.CLIENT_URL)) {
-      allowedOrigins.push(process.env.CLIENT_URL);
-    }
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+    // Dynamically allow all origins to bypass strict CORS issues during deployment
+    callback(null, true);
   },
   credentials: true,
 }));
