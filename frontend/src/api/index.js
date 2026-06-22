@@ -65,6 +65,7 @@ export const visitorsAPI = {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
   preRegister: (data) => api.post('/visitors/pre-register', data),
+  verifyOtp: (data) => api.post('/visitors/verify-otp', data),
 };
 
 // ===== Appointments API =====

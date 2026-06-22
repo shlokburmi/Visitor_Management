@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { visitorsAPI } from '../../api';
 import toast from 'react-hot-toast';
-import { FiUser, FiPhone, FiMail, FiBriefcase, FiMapPin } from 'react-icons/fi';
+import { FiUser, FiPhone, FiMail, FiBriefcase, FiMapPin, FiKey } from 'react-icons/fi';
 import './PreRegister.css';
 
 const PreRegisterPage = () => {
@@ -10,7 +10,9 @@ const PreRegisterPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-
+  const [otpRequired, setOtpRequired] = useState(false);
+  const [otp, setOtp] = useState('');
+  
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -24,11 +26,35 @@ const PreRegisterPage = () => {
 
     setLoading(true);
     try {
-      await visitorsAPI.preRegister(form);
-      toast.success('Pre-registration submitted!');
-      setSubmitted(true);
+      const res = await visitorsAPI.preRegister(form);
+      if (res.data?.requiresOtp) {
+        toast.success(res.data.message || 'OTP sent successfully!');
+        setOtpRequired(true);
+      } else {
+        toast.success('Pre-registration submitted!');
+        setSubmitted(true);
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (!otp) {
+      toast.error('Please enter the OTP');
+      return;
+    }
+    setLoading(true);
+    try {
+      await visitorsAPI.verifyOtp({ phone: form.phone, otp });
+      toast.success('OTP verified successfully!');
+      setOtpRequired(false);
+      setSubmitted(true);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Invalid OTP');
     } finally {
       setLoading(false);
     }
@@ -53,6 +79,36 @@ const PreRegisterPage = () => {
             <button className="btn btn-primary" onClick={() => { setSubmitted(false); setForm({ name: '', email: '', phone: '', company: '', purpose: '', visitDate: '', visitTime: '' }); }}>
               Register Another Visitor
             </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (otpRequired) {
+    return (
+      <div className="pre-register-layout">
+        <div className="pre-register-bg"></div>
+        <div className="pre-register-container">
+          <div className="pre-register-brand">
+            <span className="pre-register-logo">VP</span>
+            <h1>VPass</h1>
+          </div>
+          <div className="pre-register-card">
+            <h2>Verify Email / Phone</h2>
+            <p className="auth-desc">Enter the 6-digit OTP sent to your contact details.</p>
+            <form onSubmit={handleVerifyOtp}>
+              <div className="form-group">
+                <label className="form-label">OTP Code *</label>
+                <div className="input-with-icon">
+                  <FiKey className="input-icon" />
+                  <input name="otp" className="form-control" value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="123456" required />
+                </div>
+              </div>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.75rem' }} disabled={loading}>
+                {loading ? 'Verifying...' : 'Verify & Complete'}
+              </button>
+            </form>
           </div>
         </div>
       </div>

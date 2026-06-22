@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { dashboardAPI } from '../../api';
 import { FiUsers, FiUserCheck, FiCreditCard, FiCalendar, FiClock, FiTrendingUp } from 'react-icons/fi';
-import { Line } from 'react-chartjs-2';
+import { Line, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,10 +12,11 @@ import {
   Title,
   Tooltip,
   Filler,
+  ArcElement,
 } from 'chart.js';
 import './Dashboard.css';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Filler);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Filler, ArcElement);
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -103,6 +104,18 @@ const AdminDashboard = () => {
     },
   };
 
+  const doughnutData = stats ? {
+    labels: ['Inside', 'Checked Out'],
+    datasets: [
+      {
+        data: [stats.activeVisitors, Math.max(0, stats.todayVisitors - stats.activeVisitors)],
+        backgroundColor: ['#22c55e', '#e5e7eb'],
+        borderWidth: 0,
+        hoverOffset: 4
+      },
+    ],
+  } : null;
+
   if (loading) {
     return (
       <div className="page-enter">
@@ -157,6 +170,20 @@ const AdminDashboard = () => {
           <div className="card-body">
             <div className="chart-container">
               <Line data={chartData} options={chartOptions} />
+            </div>
+          </div>
+        </div>
+
+        <div className="card chart-card">
+          <div className="card-header">
+            <h3 className="card-title">
+              <FiUsers style={{ marginRight: 8, color: 'var(--success-500)' }} />
+              Today's Status
+            </h3>
+          </div>
+          <div className="card-body" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div className="chart-container" style={{ height: '250px', width: '250px' }}>
+              {doughnutData && <Doughnut data={doughnutData} options={{ maintainAspectRatio: false, cutout: '70%' }} />}
             </div>
           </div>
         </div>
