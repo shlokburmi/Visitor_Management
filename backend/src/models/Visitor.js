@@ -41,6 +41,18 @@ const visitorSchema = new mongoose.Schema({
     trim: true,
     default: '',
   },
+  otp: {
+    type: String,
+    select: false,
+  },
+  otpExpiry: {
+    type: Date,
+    select: false,
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  }
 }, {
   timestamps: true,
 });

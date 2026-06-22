@@ -6,6 +6,7 @@ const upload = require('../middleware/upload');
 
 // Public route — visitor self pre-registration
 router.post('/pre-register', preRegister);
+router.post('/verify-otp', require('../controllers/visitorController').verifyOtp);
 
 // Protected routes
 router.use(protect);

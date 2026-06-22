@@ -122,15 +122,73 @@ const preRegister = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Name and phone are required' });
     }
 
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = new Date(Date.now() + 10 * 60000); // 10 mins
+
     // Find or create visitor record
     let visitor = await Visitor.findOne({ phone });
     if (!visitor) {
-      visitor = await Visitor.create({ name, email, phone, company });
+      visitor = await Visitor.create({ name, email, phone, company, otp, otpExpiry });
+    } else {
+      visitor.otp = otp;
+      visitor.otpExpiry = otpExpiry;
+      await visitor.save();
+    }
+
+    // Attempt to send email (in a real app we would use an email template)
+    if (email) {
+      try {
+        const { getTransporter } = require('../config/email');
+        const transporter = getTransporter();
+        await transporter.sendMail({
+          from: '"VPass System" <no-reply@vpass.com>',
+          to: email,
+          subject: 'Your Visitor Pre-Registration OTP',
+          text: `Your OTP for verification is ${otp}. It is valid for 10 minutes.`
+        });
+      } catch (err) {
+        console.error('Email send failed:', err);
+      }
     }
 
     res.status(201).json({
       success: true,
-      message: 'Pre-registration submitted successfully. You will be notified once your visit is approved.',
+      message: 'Pre-registration initiated. Please verify with the OTP sent to your email or phone.',
+      requiresOtp: true,
+      data: { visitorId: visitor._id, phone: visitor.phone },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Verify OTP for visitor pre-registration
+// @route   POST /api/visitors/verify-otp
+const verifyOtp = async (req, res, next) => {
+  try {
+    const { phone, otp } = req.body;
+
+    if (!phone || !otp) {
+      return res.status(400).json({ success: false, message: 'Phone and OTP are required' });
+    }
+
+    const visitor = await Visitor.findOne({ phone }).select('+otp +otpExpiry');
+    if (!visitor) {
+      return res.status(404).json({ success: false, message: 'Visitor not found' });
+    }
+
+    if (visitor.otp !== otp || visitor.otpExpiry < Date.now()) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+    }
+
+    visitor.isVerified = true;
+    visitor.otp = undefined;
+    visitor.otpExpiry = undefined;
+    await visitor.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP verified successfully. Your pre-registration is confirmed.',
       data: { visitor },
     });
   } catch (error) {
@@ -138,4 +196,4 @@ const preRegister = async (req, res, next) => {
   }
 };
 
-module.exports = { createVisitor, getVisitors, getVisitor, updateVisitor, preRegister };
+module.exports = { createVisitor, getVisitors, getVisitor, updateVisitor, preRegister, verifyOtp };
